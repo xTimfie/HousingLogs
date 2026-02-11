@@ -1,0 +1,61 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. v1.0.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Java 8 (toolchain)
+        uses: actions/setup-java@v4
+        id: jdk8
+        with:
+          distribution: temurin
+          java-version: 8
+
+      - name: Setup Java 17 (Gradle runtime)
+        uses: actions/setup-java@v4
+        id: jdk17
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build mod jar
+        env:
+          JAVA_HOME: ${{ steps.jdk17.outputs.path }}
+          ORG_GRADLE_JAVA_INSTALLATIONS_PATHS: ${{ steps.jdk8.outputs.path }},${{ steps.jdk17.outputs.path }}
+        run: ./gradlew clean build
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          prerelease: ${{ inputs.prerelease || false }}
+          files: |
+            build/libs/*.jar
