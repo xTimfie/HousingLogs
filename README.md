@@ -1,43 +1,87 @@
-# Architectury Loom based template for 1.8.9 forge mods
+# Housing Logs
 
-**For other templates, do check out the [other branches of this repository](https://github.com/romangraef/Forge1.8.9Template/branches/all)**
+Housing Logs is a client-side Minecraft Forge mod that records block changes (place/break/change) inside user-defined cuboid areas.
+
+It is designed for **Hypixel Housing** workflows: logging is only active while the client detects that you are currently in Housing.
+
+## Supported versions
+
+- Minecraft: **1.8.9**
+- Forge: **1.8.9-11.15.1.2318**
+- Side: **Client only**
+
+## What it does
+
+- Lets you define named 3D areas by coordinates.
+- Logs block updates inside those areas to:
+	- a machine-readable **JSON Lines** file (`.jsonl`), and
+	- a human-readable **text** log (`.log`).
+- Optionally renders an in-world bounding-box highlight for selected areas.
+
+## Installation
+
+1. Install Minecraft Forge for **1.8.9**.
+2. Download the mod JAR from this repository’s releases (or build it yourself).
+3. Place the JAR into your `.minecraft/mods` folder.
+4. Launch Minecraft 1.8.9 with the Forge profile.
 
 ## Usage
 
-Check out https://moddev.nea.moe/ for a full tutorial on legacy modding.
+All commands use the prefix `/hlog`.
 
-Alternatively, read here for a basic overview on how to use this repository.
+### Define an area
 
-To get started, [Use this template](https://github.com/new?template_name=Forge1.8.9Template&template_owner=nea89o).
+Create or update a named cuboid area:
 
-> [!WARNING]
-> Do not Fork or Clone or Download ZIP this template. If you "use" this template a custom mod id will be generated. You can do that manually using the `make-my-own` script, if you are on linux. If not, just click the use this template button. If you want to use kotlin or make a 1.12 mod check the "Include all branches" and change the default branch in https://github.com/yourname/yourreponame/branches
+`/hlog add <name> <x1> <y1> <z1> <x2> <y2> <z2> [#RRGGBB|#RRGGBBAA]`
 
-This project uses [DevAuth](https://github.com/DJtheRedstoner/DevAuth) per default, so you can log in using your real
-minecraft account. If you don't need that, you can remove it from the buildscript.
+- `<name>` is case-insensitive for lookups (e.g. `Test` and `test` refer to the same area).
+- The color is optional and defaults to `#FFFF00FF` (RGBA).
 
-To run the mod you will need two JDKs, one Java 17 jdk and one Java 1.8 jdk. You can download those
-from [here](https://adoptium.net/temurin/releases) (or use your own downloads).
+### Manage areas
 
-When you import your project into IntelliJ, you need to set the gradle jvm to the Java 17 JDK in the gradle tab, and the
-Project SDK to the Java 1.8 JDK. Then click on the sync button in IntelliJ, and it should create a run task
-called `Minecraft Client`. If it doesn't then try relaunching your IntelliJ. **Warning for Mac users**: You might have to remove the `-XStartOnFirstThread` vm argument from your run configuration. In the future, that should be handled by the plugin, but for now you'll probably have to do that manually.
+- List current areas and status: `/hlog list`
+- Remove one area: `/hlog remove <name>`
+- Remove all areas: `/hlog clear`
 
-To export your project, run the `gradle build` task, and give other people the
-file `build/libs/<modid>-<version>.jar`. Ignore the jars in the `build/badjars` folder. Those are intermediary jars that
-are used by the build system but *do not work* in a normal forge installation.
+### Enable/disable logging
 
-If you don't want mixins (which allow for modifying vanilla code), then you can remove the references to mixins from
-the `build.gradle.kts` at the lines specified with comments and the `com.example.mixin` package.
+- Enable logging: `/hlog on`
+- Disable logging: `/hlog off`
 
-If you don't want access transformers (which allow for making methods public/non-final) you can delete the
-`accesstransformer.cfg` file. If you make a change to the `accesstransformers.cfg` you might need to rebuild your
-project using `./gradlew build --refresh-dependencies`.
+### Highlight an area in-world
 
-### For those who have not an attention span
+- Toggle highlight: `/hlog highlight <name>`
+- Explicitly set: `/hlog highlight <name> on|off`
 
-[![Youtube Tutorial](https://i.ytimg.com/vi/nWzHlomdCgc/maxresdefault.jpg)](https://www.youtube.com/watch?v=nWzHlomdCgc)
+### Find the output files
 
-## Licensing
+Run:
 
-This template is licensed under the Unlicense (license copy present in this repository), or alternatively under [Creative Commons 1.0 Universal (CC0 1.0)](https://creativecommons.org/publicdomain/zero/1.0/), and all contributions and PR to this template are expected to follow this. This means your mod, based on this template can be licensed whatever way you want, and does not need to reference back to this template in any way.
+`/hlog path`
+
+This prints the full paths to the config + log files in chat.
+
+## Output files
+
+The mod writes files under your Minecraft directory (typically `.minecraft/config`):
+
+- `config/hitlist-blockaudit-area.json`
+	- Stores the global enabled flag + your saved area definitions (name, min/max, color, highlight).
+- `config/hitlist-blockaudit-log.jsonl`
+	- One JSON object per line.
+	- Fields include: `tsMs`, `area`, `action` (`PLACE`/`BREAK`/`CHANGE`), `x`, `y`, `z`, `oldBlock`, `oldMeta`, `newBlock`, `newMeta`, plus optional `playerName`/`playerUuid` when attribution succeeds.
+- `config/hitlist-blockaudit.log`
+	- Human-readable log lines intended for quick viewing (e.g. tailing the file).
+
+## Notes and limitations
+
+- Player attribution is **best-effort**. Minecraft servers generally do not send definitive “who placed this block” information to clients.
+- Break attribution is attempted via break animation packets when available; placement/break may also be guessed heuristically based on nearby players’ look direction and distance.
+- Logging is only performed when the mod detects you are in **Housing**.
+
+## Building from source
+
+- Run `./gradlew build`.
+- The distributable JAR is produced under `build/libs/`.
+
