@@ -6,7 +6,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
-@Mod(modid = "housinglogs", name = "HousingLogs", version = "1.0.0", clientSideOnly = true)
+@Mod(modid = "housinglogs", name = "HousingLogs", version = "1.0.1", clientSideOnly = true)
 public class HousingLogsMod {
 
     @Mod.EventHandler
