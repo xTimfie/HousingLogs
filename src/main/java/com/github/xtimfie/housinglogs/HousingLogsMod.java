@@ -12,6 +12,7 @@ public class HousingLogsMod {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         ClientCommandHandler.instance.registerCommand(new CommandBlockAudit());
+        ProtoolsAutomation.init();
         MinecraftForge.EVENT_BUS.register(new BlockAuditHighlightRenderer());
         BlockAuditManager.loadAreaFromDisk();
     }

@@ -74,6 +74,45 @@ The mod writes files under your Minecraft directory (typically `.minecraft/confi
 - `config/hitlist-blockaudit.log`
 	- Human-readable log lines intended for quick viewing (e.g. tailing the file).
 
+
+## Pro Tools automation
+
+This mod also includes a small client-side automation helper intended for Hypixel Housing Pro Tools workflows.
+
+These commands are typed with a `//` prefix. They are **client commands** that send a sequence of chat commands to the server (for example `/tp`, `//pos1`, `//pos2`).
+
+### Set a single block (automation)
+
+`//setblock <x> <y> <z> <blockID>`
+
+Internally it will:
+
+1. Teleport to the target block (centered).
+2. Run `//pos1`.
+3. Teleport to the target block again.
+4. Run `//pos2`.
+5. Run `//set <blockID>`.
+6. Teleport you back to the exact coordinates you were at when you ran `//setblock`.
+7. Run `//desel` to clear the selection.
+
+### Fill an area (automation)
+
+`//fillblocks <x1> <y1> <z1> <x2> <y2> <z2> <blockID>`
+
+Internally it will:
+
+1. Teleport to `(x1, y1, z1)` and run `//pos1`.
+2. Teleport to `(x2, y2, z2)` and run `//pos2`.
+3. Run `//fill <blockID>`.
+4. Teleport you back to your starting coordinates.
+5. Run `//desel`.
+
+### Reliability and cooldowns
+
+- The automation includes built-in delays between commands to reduce Hypixel rate-limiting ("Slow down").
+- If `//pos1` / `//pos2` appears to be set at the wrong coordinates (due to server nudging), it will automatically retry the `/tp` + `//pos` step a limited number of times.
+- The automation only starts when the mod detects you are in Housing.
+
 ## Notes and limitations
 
 - Player attribution is **best-effort**. Minecraft servers generally do not send definitive “who placed this block” information to clients.
