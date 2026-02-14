@@ -75,7 +75,7 @@ The mod writes files under your Minecraft directory (typically `.minecraft/confi
 	- Human-readable log lines intended for quick viewing (e.g. tailing the file).
 
 
-## Pro Tools automation
+## Pro Tools automation (Use at own risk!)
 
 This mod also includes a small client-side automation helper intended for Hypixel Housing Pro Tools workflows.
 
